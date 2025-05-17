@@ -1,0 +1,11 @@
+## .NET Core
+bin/
+obj/
+*.user
+*.suo
+.vs/
+.vscode/
+*.dbmdl
+*.jfm
+*.log
+.history/
