@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Agent.Api.Infrastructure.Entities;
 

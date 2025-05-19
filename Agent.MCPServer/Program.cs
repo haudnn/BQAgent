@@ -2,6 +2,7 @@ using Agent.MCPServer.Tools;
 using MCPServer;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Agents;
+using Microsoft.SemanticKernel.Plugins.OpenApi;
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
@@ -28,7 +29,7 @@ if (string.IsNullOrEmpty(apiKey))
 }
 
 var kernelBuilder = builder.Services.AddKernel();
-kernelBuilder.Plugins.AddFromFunctions("Agents", [AgentKernelFunctionFactory.CreateFromAgent(CreateSalesAssistantAgent(chatModelId, endpoint, apiKey))]);
+kernelBuilder.Plugins.AddFromFunctions("Agents", [AgentKernelFunctionFactory.CreateFromAgent(await CreateSalesAssistantAgent(chatModelId, endpoint, apiKey))]);
 
 builder.Services.AddHttpClient();
 
@@ -67,25 +68,34 @@ app.UseCors("CorsPolicy");
 
 app.Run();
 
-static ChatCompletionAgent CreateSalesAssistantAgent(string chatModelId, string endpoint, string apiKey)
+static async Task<ChatCompletionAgent> CreateSalesAssistantAgent(string chatModelId, string endpoint, string apiKey)
 {
-	IKernelBuilder kernelBuilder = Kernel.CreateBuilder();
+    IKernelBuilder kernelBuilder = Kernel.CreateBuilder();
 
-	// Register the SK plugin for the agent to use
-	kernelBuilder.Plugins.AddFromType<OrderProcessingUtils>();
 
-	// Register chat completion service
-	kernelBuilder.AddAzureOpenAIChatCompletion(chatModelId, endpoint, apiKey);
+    kernelBuilder.Plugins.AddFromType<OrderProcessingUtils>();
 
-	Kernel kernel = kernelBuilder.Build();
+    kernelBuilder.AddAzureOpenAIChatCompletion(chatModelId, endpoint, apiKey);
 
-	// Define the agent
-	return new ChatCompletionAgent()
-	{
-		Name = "SalesAssistant",
-		Instructions = "You are a sales assistant. Place orders for items the user requests and handle refunds.",
-		Description = "Agent to invoke to place orders for items the user requests and handle refunds.",
-		Kernel = kernel,
-		Arguments = new KernelArguments(new PromptExecutionSettings() { FunctionChoiceBehavior = FunctionChoiceBehavior.Auto() }),
-	};
+    // Build the kernel
+    Kernel kernel = kernelBuilder.Build();
+
+    var plugin = await kernel.ImportPluginFromOpenApiAsync(
+        pluginName: "lights",
+        uri: new Uri("https://localhost:7275/swagger/v1/swagger.json"),
+        executionParameters: new OpenApiFunctionExecutionParameters()
+        {
+            EnablePayloadNamespacing = true
+        }
+    );
+
+    return new ChatCompletionAgent()
+    {
+        Name = "Assistant",
+        Instructions = @"You are an assistant for a business, you can:
+        1. Register new users using the Register function",
+        Description = "ser will make requests to interact with the system",
+        Kernel = kernel,
+        Arguments = new KernelArguments(new PromptExecutionSettings() { FunctionChoiceBehavior = FunctionChoiceBehavior.Auto() }),
+    };
 }

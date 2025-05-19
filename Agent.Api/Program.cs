@@ -7,7 +7,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 builder.AddApplicationServices();
-
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 app.MapDefaultEndpoints();
@@ -18,7 +19,11 @@ if (app.Environment.IsDevelopment())
 }
 //app.UseAuthentication();
 //app.UseAuthorization();
+
+app.UseSwagger();
+app.UseSwaggerUI();
 app.UseHttpsRedirection();
-app.BQApi();
+
+app.MapBQApi();
 
 app.Run();

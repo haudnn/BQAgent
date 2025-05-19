@@ -1,9 +1,15 @@
-﻿namespace Agent.Api.Models;
+﻿using System.ComponentModel;
+
+namespace Agent.Api.Models;
 
 public class RegisterRequest
 {
-	public string EmployeeCode { get; set; } = default!;
-	public string DisplayName { get; set; } = default!;
-	public string Email { get; set; } = default!;
-	public string Password { get; set; } = default!;
+	[Description("Employee code")]
+    public string EmployeeCode { get; set; } = default!;
+	[Description("Name")]
+    public string DisplayName { get; set; } = default!;
+	[Description("Email")]
+    public string Email { get; set; } = default!;
+	[Description("Password")]
+    public string Password { get; set; } = default!;
 }

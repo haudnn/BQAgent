@@ -1,8 +1,5 @@
-using System.ComponentModel.DataAnnotations.Schema;
-
 namespace Agent.Api.Infrastructure.Entities;
 
-[Table("users")]
 public class User
 {
   public Guid Id { get; set; } = Guid.CreateVersion7();

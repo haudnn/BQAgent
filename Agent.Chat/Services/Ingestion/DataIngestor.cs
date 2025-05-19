@@ -45,11 +45,11 @@ public class DataIngestor(
         await vectorCollection.DeleteBatchAsync(modifiedDoc.Records.Select(r => r.Id));
       }
 
-      var newRecords = await source.CreateRecordsForDocumentAsync(embeddingGenerator, modifiedDoc.Id);
-      await foreach (var id in vectorCollection.UpsertBatchAsync(newRecords)) { }
+      //var newRecords = await source.CreateRecordsForDocumentAsync(embeddingGenerator, modifiedDoc.Id);
+      //await foreach (var id in vectorCollection.UpsertBatchAsync(newRecords)) { }
 
-      modifiedDoc.Records.Clear();
-      modifiedDoc.Records.AddRange(newRecords.Select(r => new IngestedRecord { Id = r.Key, DocumentId = modifiedDoc.Id }));
+      //modifiedDoc.Records.Clear();
+      //modifiedDoc.Records.AddRange(newRecords.Select(r => new IngestedRecord { Id = r.Key, DocumentId = modifiedDoc.Id }));
 
       if (ingestionCacheDb.Entry(modifiedDoc).State == EntityState.Detached)
       {

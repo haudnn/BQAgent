@@ -44,11 +44,6 @@
     protected override async Task OnInitializedAsync()
     {
         McpClient = await McpClientFactory.CreateAsync(
-            // clientTransport: new StdioClientTransport(new()
-            //     {
-            //         Command = @"..\..\..\..\ChatApp.SampleMCPServer\bin\Debug\net9.0\ChatApp.SampleMCPServer.exe",
-            //         Name = "MCPServer",
-            //     }));
             clientTransport: new SseClientTransport(new SseClientTransportOptions()
             {
                 Endpoint = new Uri("http://localhost:5104/sse"),
