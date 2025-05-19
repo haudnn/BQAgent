@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace Agent.MCPServer.Infrastructure.Data;
+namespace Agent.Api.Infrastructure.Data;
 
 public class AgentContextFactory : IDesignTimeDbContextFactory<AgentDbContext>
 {
@@ -9,8 +9,7 @@ public class AgentContextFactory : IDesignTimeDbContextFactory<AgentDbContext>
   {
     var optionsBuilder = new DbContextOptionsBuilder<AgentDbContext>();
 
-    optionsBuilder.UseNpgsql("Host=localhost;Database=agent;Username=postgres;Password=postgres")
-                  .UseSnakeCaseNamingConvention();
+    optionsBuilder.UseNpgsql("Host=localhost;Database=bqDb;Username=postgres;Password=postgres");
 
     return new AgentDbContext(optionsBuilder.Options);
   }

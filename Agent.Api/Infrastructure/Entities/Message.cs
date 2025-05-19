@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Agent.MCPServer.Domain.Entities;
+namespace Agent.Api.Infrastructure.Entities;
 
 
 [Table("messages")]

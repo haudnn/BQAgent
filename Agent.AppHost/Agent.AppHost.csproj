@@ -13,13 +13,16 @@
 
   <ItemGroup>
     <PackageReference Include="Aspire.Hosting.AppHost" Version="9.2.1" />
+    <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="9.2.1" />
     <PackageReference Include="Aspire.Hosting.Qdrant" Version="9.2.1" />
     <PackageReference Include="CommunityToolkit.Aspire.Hosting.Sqlite" Version="9.4.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Agent.Api\Agent.Api.csproj" />
     <ProjectReference Include="..\Agent.Chat\Agent.Chat.csproj" />
     <ProjectReference Include="..\Agent.MCPServer\Agent.MCPServer.csproj" />
+    <ProjectReference Include="..\Agent.MigrationService\Agent.MigrationService.csproj" />
   </ItemGroup>
 
 </Project>

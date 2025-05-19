@@ -1,7 +1,7 @@
-using Agent.MCPServer.Domain.Entities;
+using Agent.Api.Infrastructure.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace Agent.MCPServer.Infrastructure.Data;
+namespace Agent.Api.Infrastructure.Data;
 
 public class AgentDbContext : DbContext
 {

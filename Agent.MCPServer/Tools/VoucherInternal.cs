@@ -14,11 +14,10 @@ public class VoucherInternal
   }
 
 
-  [McpServerTool]
-
+  [McpServerTool, Description("Get voucher by employee code")]
   public Voucher GetVoucher(string employeeCode)
   {
-    if (string.IsNullOrEmpty(employeeCode))
+    if (string.IsNullOrEmpty(employeeCode ))
       return null;
     var voucher = vouchers.FirstOrDefault(v => v.EmployeeCode == employeeCode && v.VoucherItems.Any(x => x.Status == StatusType.Active));
     if (voucher == null)
@@ -76,10 +75,6 @@ public class VoucherInternal
 
 
 
-
-
-
-
 public class Voucher
 {
   [Description("Mã nhân viên")]
@@ -89,20 +84,21 @@ public class Voucher
   public string EmployeeName { get; set; } = default!;
 
   [Description("Danh sách voucher")]
-
   public List<VoucherItem> VoucherItems { get; set; } = [];
 
-  public class VoucherItem
+	[Description("Danh sách voucher")]
+	public class VoucherItem
   {
     [Description("Tên voucher")]
     public string ItemName { get; set; } = default!;
 
     [Description("Phần trăm")]
     public int Percent { get; set; }
+
     [Description("Ngày hết hạn")]
     public DateTime ExpirationDate { get; set; }
-    [Description("Trạng thái")]
 
+    [Description("Trạng thái")]
     public StatusType Status { get; set; } = StatusType.Active;
 
   }
@@ -112,6 +108,7 @@ public enum StatusType
 {
   [Description("Đang hoạt động")]
   Active,
+
   [Description("Ngừng hoạt động")]
   InActive
 }

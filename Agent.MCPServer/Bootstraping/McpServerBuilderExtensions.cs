@@ -25,7 +25,11 @@ public static class McpServerBuilderExtensions
         }
       }
 
-      foreach (var toolType in new[] { typeof(TimeTool), typeof(CalculationTool), typeof(LarkTool), typeof(VoucherInternal) })
+      foreach (var toolType in new[] { 
+        typeof(TimeTool), 
+        typeof(CalculationTool), 
+        typeof(LarkTool), 
+        typeof(VoucherInternal) })
       {
         if (toolType is not null)
         {
