@@ -19,14 +19,9 @@ openai.AddChatClient("gpt-4o-mini")
 openai.AddEmbeddingGenerator("text-embedding-3-small");
 
 
-
-
-
-
-
 builder.AddQdrantClient("vectordb");
 
-builder.Services.AddSingleton<IVectorStore, QdrantVectorStore>();
+builder.Services.AddSingleton<IVectorStore, QdrantVectorStore>(); 
 builder.Services.AddScoped<DataIngestor>();
 builder.Services.AddSingleton<SemanticSearch>();
 builder.AddSqliteDbContext<IngestionCacheDbContext>("ingestionCache");
