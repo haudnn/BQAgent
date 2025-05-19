@@ -24,7 +24,6 @@ public class VoucherInternal
     if (voucher == null)
       return null;
     return voucher;
-
   }
 
   public static List<Voucher> SeedVoucher()
