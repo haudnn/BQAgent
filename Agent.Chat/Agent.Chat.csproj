@@ -20,10 +20,7 @@
   
   
     <ItemGroup>
-    <!-- Core Semantic Kernel packages -->
-    <PackageReference Include="Microsoft.SemanticKernel" Version="1.47.0" />
-    <PackageReference Include="Microsoft.SemanticKernel.Abstractions" Version="1.47.0" />
-    <PackageReference Include="Microsoft.SemanticKernel.Core" Version="1.47.0" />
+
     <!-- Connectors -->
     <PackageReference Include="Microsoft.SemanticKernel.Connectors.AzureOpenAI " Version="1.47.0" />
     <PackageReference Include="Microsoft.SemanticKernel.Connectors.InMemory" Version="1.47.0-preview" />
@@ -39,6 +36,7 @@
   
 
   <ItemGroup>
+    <ProjectReference Include="..\Agent.Api\Agent.Api.csproj" />
     <ProjectReference Include="..\Agent.ServiceDefaults\Agent.ServiceDefaults.csproj" />
   </ItemGroup>
 

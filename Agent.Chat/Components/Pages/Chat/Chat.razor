@@ -34,13 +34,12 @@
         ";
 
     private readonly ChatOptions chatOptions = new();
-    private readonly List<ChatMessage> messages = new();
     private CancellationTokenSource? currentResponseCancellation;
     private ChatMessage? currentResponseMessage;
     private ChatInput? chatInput;
     private ChatSuggestions? chatSuggestions;
     private IMcpClient? McpClient;
-
+    private readonly List<ChatMessage> messages = new();
     protected override async Task OnInitializedAsync()
     {
         McpClient = await McpClientFactory.CreateAsync(
@@ -54,38 +53,42 @@
         chatOptions.Tools = [.. tools];
 
         messages.Add(new(ChatRole.System, SystemPrompt));
-
+        SeedHistory();
         await base.OnInitializedAsync();
     }
 
-    @code {
-        private async Task AddUserMessageAsync(ChatMessage userMessage)
-        {
-            CancelAnyCurrentResponse();
-
-            // Add the user message to the conversation
-            messages.Add(userMessage);
-            chatSuggestions?.Clear();
-            await chatInput!.FocusAsync();
-
-            // Stream and display a new response from the IChatClient
-            var responseText = new Microsoft.Extensions.AI.TextContent(""); // Specify the namespace explicitly
-            currentResponseMessage = new ChatMessage(ChatRole.Assistant, [responseText]);
-            currentResponseCancellation = new();
-            await foreach (var update in ChatClient.GetStreamingResponseAsync([.. messages], chatOptions, currentResponseCancellation.Token))
-            {
-                messages.AddMessages(update, filter: c => c is not Microsoft.Extensions.AI.TextContent); // Specify the namespace explicitly
-                responseText.Text += update.Text;
-                ChatMessageItem.NotifyChanged(currentResponseMessage);
-            }
-
-            // Store the final response in the conversation, and begin getting suggestions
-            messages.Add(currentResponseMessage!);
-            currentResponseMessage = null;
-            chatSuggestions?.Update(messages);
-        }
+    private void SeedHistory()
+    {
+        messages.Add(new ChatMessage(ChatRole.User, "Tôi là một người nóng tính"));
+        messages.Add(new ChatMessage(ChatRole.User, "Tôi thích ăn cay"));
     }
 
+
+    private async Task AddUserMessageAsync(ChatMessage userMessage)
+    {
+        CancelAnyCurrentResponse();
+
+        // Add the user message to the conversation
+        messages.Add(userMessage);
+        chatSuggestions?.Clear();
+        await chatInput!.FocusAsync();
+
+        // Stream and display a new response from the IChatClient
+        var responseText = new Microsoft.Extensions.AI.TextContent(""); // Specify the namespace explicitly
+        currentResponseMessage = new ChatMessage(ChatRole.Assistant, [responseText]);
+        currentResponseCancellation = new();
+        await foreach (var update in ChatClient.GetStreamingResponseAsync([.. messages], chatOptions, currentResponseCancellation.Token))
+        {
+            messages.AddMessages(update, filter: c => c is not Microsoft.Extensions.AI.TextContent); // Specify the namespace explicitly
+            responseText.Text += update.Text;
+            ChatMessageItem.NotifyChanged(currentResponseMessage);
+        }
+
+        // Store the final response in the conversation, and begin getting suggestions
+        messages.Add(currentResponseMessage!);
+        currentResponseMessage = null;
+        chatSuggestions?.Update(messages);
+    }
     private void CancelAnyCurrentResponse()
     {
         // If a response was cancelled while streaming, include it in the conversation so it's not lost

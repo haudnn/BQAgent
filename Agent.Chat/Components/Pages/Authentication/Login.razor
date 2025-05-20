@@ -1,0 +1,110 @@
+﻿@page "/login"
+@using System.Net.Http.Json
+@using Agent.Api.Models
+@using Agent.Api.Infrastructure.Entities
+@using Agent.Api.Interfaces;
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+@inject IIdentityService identityService
+
+<PageTitle>Login</PageTitle>
+
+<div class="container">
+    <div class="">
+        <div class="">
+            <h3 class="">Login</h3>
+        </div>
+        <div class="">
+            <EditForm Model="@loginRequest" OnValidSubmit="HandleValidSubmit">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="mb-3">
+                    <label for="employeeCode" class="form-label">Mã nhân viên</label>
+                    <InputText id="employeeCode" class="form-control input-auth" @bind-Value="loginRequest.EmployeeCode" />
+                    <ValidationMessage For="@(() => loginRequest.EmployeeCode)" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="password" class="form-label">Mật khẩu</label>
+                    <InputText id="password" type="password" class="form-control input-auth" @bind-Value="loginRequest.Password" />
+                    <ValidationMessage For="@(() => loginRequest.Password)" />
+                </div>
+
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary" disabled="@isLoading">
+                        @if (isLoading)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            <span>Đang xử lý...</span>
+                        }
+                        else
+                        {
+                            <span>Đăng nhập</span>
+                        }
+                    </button>
+                </div>
+            </EditForm>
+
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="alert alert-danger mt-3">
+                    @errorMessage
+                </div>
+            }
+
+            <div class="mt-3 text-center">
+                <a href="/register">Chưa có tài khoản? Đăng ký</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private LoginRequest loginRequest = new() { EmployeeCode = "", Password = "" };
+    private string errorMessage = "";
+    private bool isLoading = false;
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = "";
+
+            if (string.IsNullOrEmpty(loginRequest.EmployeeCode))
+                return;
+            else if (string.IsNullOrEmpty(loginRequest.Password))
+                return;
+            else
+            {
+
+                var user = await identityService.Login(loginRequest);
+                if (user != null)
+                {
+
+                    await JSRuntime.InvokeVoidAsync("localStorage.setItem", "userId", user.Id.ToString());
+                    await JSRuntime.InvokeVoidAsync("localStorage.setItem", "userName", user.DisplayName);
+
+
+                    NavigationManager.NavigateTo("/chat");
+                }
+                else
+                {
+                    errorMessage = "Đăng nhập không thành công. Vui lòng thử lại.";
+                }
+                
+            }
+            
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Lỗi: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

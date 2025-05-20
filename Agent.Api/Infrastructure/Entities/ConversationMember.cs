@@ -11,7 +11,3 @@ public class ConversationMember
   public Conversation Conversation { get; set; } = default!;
   public User User { get; set; } = default!;
 }
-
-// Indexes {
-//   (conversation_id, user_id) [unique]  
-// }

@@ -13,48 +13,48 @@ var builder = WebApplication.CreateBuilder(args);
 var chatModelId = builder.Configuration.GetConnectionString("chatModelId");
 if (string.IsNullOrEmpty(chatModelId))
 {
-	throw new ArgumentNullException(nameof(chatModelId), "The chatModelId connection string cannot be null or empty.");
+    throw new ArgumentNullException(nameof(chatModelId), "The chatModelId connection string cannot be null or empty.");
 }
 
 var endpoint = builder.Configuration.GetConnectionString("endpoint");
 if (string.IsNullOrEmpty(endpoint))
 {
-	throw new ArgumentNullException(nameof(endpoint), "The endpoint connection string cannot be null or empty.");
+    throw new ArgumentNullException(nameof(endpoint), "The endpoint connection string cannot be null or empty.");
 }
 
 var apiKey = builder.Configuration.GetConnectionString("apiKey");
 if (string.IsNullOrEmpty(apiKey))
 {
-	throw new ArgumentNullException(nameof(apiKey), "The apiKey connection string cannot be null or empty.");
+    throw new ArgumentNullException(nameof(apiKey), "The apiKey connection string cannot be null or empty.");
 }
 
 var kernelBuilder = builder.Services.AddKernel();
-kernelBuilder.Plugins.AddFromFunctions("Agents", [AgentKernelFunctionFactory.CreateFromAgent(await CreateSalesAssistantAgent(chatModelId, endpoint, apiKey))]);
+kernelBuilder.Plugins.AddFromFunctions("Agents", [AgentKernelFunctionFactory.CreateFromAgent(await CreateAssistantAgent(chatModelId, endpoint, apiKey))]);
 
 builder.Services.AddHttpClient();
 
 builder.Services
-		.AddMcpServer()
-		.WithHttpTransport()
-		.WithSKPlugins();
+        .AddMcpServer()
+        .WithHttpTransport()
+        .WithSKPlugins();
 
 builder.Services.AddOpenTelemetry()
-		.WithTracing(b => b.AddSource("*")
-				.AddAspNetCoreInstrumentation()
-				.AddHttpClientInstrumentation())
-		.WithMetrics(b => b.AddMeter("*")
-				.AddAspNetCoreInstrumentation()
-				.AddHttpClientInstrumentation())
-		.WithLogging()
-		.UseOtlpExporter();
+        .WithTracing(b => b.AddSource("*")
+                .AddAspNetCoreInstrumentation()
+                .AddHttpClientInstrumentation())
+        .WithMetrics(b => b.AddMeter("*")
+                .AddAspNetCoreInstrumentation()
+                .AddHttpClientInstrumentation())
+        .WithLogging()
+        .UseOtlpExporter();
 
 
 builder.Services.AddCors(options =>
 {
-	options.AddPolicy("CorsPolicy", builder =>
-			builder.AllowAnyOrigin()
-						 .AllowAnyMethod()
-						 .AllowAnyHeader());
+    options.AddPolicy("CorsPolicy", builder =>
+            builder.AllowAnyOrigin()
+                         .AllowAnyMethod()
+                         .AllowAnyHeader());
 });
 
 
@@ -68,12 +68,11 @@ app.UseCors("CorsPolicy");
 
 app.Run();
 
-static async Task<ChatCompletionAgent> CreateSalesAssistantAgent(string chatModelId, string endpoint, string apiKey)
+static async Task<ChatCompletionAgent> CreateAssistantAgent(string chatModelId, string endpoint, string apiKey)
 {
     IKernelBuilder kernelBuilder = Kernel.CreateBuilder();
 
-
-    kernelBuilder.Plugins.AddFromType<OrderProcessingUtils>();
+    // kernelBuilder.Plugins.AddFromType<OrderProcessingUtils>();
 
     kernelBuilder.AddAzureOpenAIChatCompletion(chatModelId, endpoint, apiKey);
 
@@ -94,7 +93,7 @@ static async Task<ChatCompletionAgent> CreateSalesAssistantAgent(string chatMode
         Name = "Assistant",
         Instructions = @"You are an assistant for a business, you can:
         1. Register new users using the Register function",
-        Description = "ser will make requests to interact with the system",
+        Description = "User will make requests to interact with the system",
         Kernel = kernel,
         Arguments = new KernelArguments(new PromptExecutionSettings() { FunctionChoiceBehavior = FunctionChoiceBehavior.Auto() }),
     };

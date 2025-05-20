@@ -4,6 +4,10 @@ using Agent.Chat.Components;
 using Agent.Chat.Services;
 using Agent.Chat.Services.Ingestion;
 using Microsoft.SemanticKernel.Connectors.Qdrant;
+using Agent.Api.Infrastructure.Data;
+using Agent.Api.Interfaces;
+using Agent.Api.Services;
+using Microsoft.EntityFrameworkCore;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,6 +29,20 @@ builder.Services.AddSingleton<IVectorStore, QdrantVectorStore>();
 builder.Services.AddScoped<DataIngestor>();
 builder.Services.AddSingleton<SemanticSearch>();
 builder.AddSqliteDbContext<IngestionCacheDbContext>("ingestionCache");
+
+
+// api
+builder.Services.AddRazorPages();
+builder.Services.AddServerSideBlazor();
+builder.Services.AddHttpClient();
+builder.AddNpgsqlDbContext<AgentDbContext>("bqDb", configureDbContextOptions: dbContextOptionsBuilder =>
+{
+    dbContextOptionsBuilder
+    .UseNpgsql(builder => builder.MigrationsAssembly(typeof(AgentDbContext).Assembly.FullName));
+});
+builder.Services.AddScoped<IIdentityService, IdentityService>();
+builder.Services.AddScoped<IMessagesService, MessagesService>();
+builder.Services.AddScoped<IConversationService, ConversationService>();
 
 var app = builder.Build();
 IngestionCacheDbContext.Initialize(app.Services);

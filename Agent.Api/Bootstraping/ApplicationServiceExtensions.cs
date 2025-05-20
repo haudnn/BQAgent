@@ -1,4 +1,6 @@
 ﻿using Agent.Api.Infrastructure.Data;
+using Agent.Api.Interfaces;
+using Agent.Api.Services;
 using Asp.Versioning;
 
 using Microsoft.EntityFrameworkCore;
@@ -38,6 +40,10 @@ public static class ApplicationServiceExtensions
                   }
               );
         });
+
+        builder.Services.AddScoped<IIdentityService, IdentityService>();
+        builder.Services.AddScoped<IMessagesService, MessagesService>();
+        builder.Services.AddScoped<IConversationService, ConversationService>();
         return builder;
   }
 }

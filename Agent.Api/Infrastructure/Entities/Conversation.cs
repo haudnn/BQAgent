@@ -5,6 +5,7 @@ public class Conversation
   public string Name { get; set; } = default!;
   public bool IsGroup { get; set; }
   public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+  public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
   public Guid CreatedById { get; set; }
 
   // Navigation properties
