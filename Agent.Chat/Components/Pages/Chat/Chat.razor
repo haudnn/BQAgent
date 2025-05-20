@@ -1,30 +1,76 @@
-﻿@page "/"
+﻿@page "/chat"
 @using System.ComponentModel
 @using Microsoft.SemanticKernel.ChatCompletion
 @using ModelContextProtocol.Client
 @using ModelContextProtocol.Protocol.Transport
+@using Agent.Api.Models
+@using Agent.Api.Infrastructure.Entities
+@using Agent.Api.Interfaces;
+@inject IConversationService conversationService
+@inject IMessagesService messagesService
 @inject IChatClient ChatClient
 @inject NavigationManager Nav
 @inject SemanticSearch Search
+@inject IJSRuntime JSRuntime
 @implements IDisposable
 
 <PageTitle>Chat</PageTitle>
 
-<ChatHeader OnNewChat="@ResetConversationAsync" />
 
-<ChatMessageList Messages="@messages" InProgressMessage="@currentResponseMessage">
-    <NoMessagesContent>
-        <div>To get started, try asking about these example documents. You can replace these with your own data and replace this message.</div>
-        <ChatCitation File="Example_Emergency_Survival_Kit.pdf"/>
-        <ChatCitation File="Example_GPS_Watch.pdf"/>
-    </NoMessagesContent>
-</ChatMessageList>
+<div class="wrapper">
+    <div class="history main-background-gradient">
+        <div>
+            <h3 class="title">BQ</h3>
+            <p class="title-3">Lịch sử trò chuyện</p>
+            <hr />
+            <ul class="conversations">
+                @foreach (var conversation in conversations)
+                {
+                    <li class="conversations-item" @onclick="@(() => SelectedConversation(conversation))">
+                        <div class="conversations-item-link">
+                            <p class="conversations-item-name">@conversation.Name</p>
+                        </div>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+    @if (currentConversation == null)
+    {
+        <div class="messages">
+            <h3 class="title">BQ Agent</h3>
+            <div class="no-conversation">
+                <div>
+                    <input type="text" placeholder="Tên cuộc trò chuyện..." @bind="@conversationName" />
+                    <button @onclick="CreateConversation" class="btn-subtle">Tạo cuộc trò chuyện mới</button>
+                    <p style="font-size: 14px; margin: 0 10px;">Hoặc</p>
+                    <p style="margin: 0;" class="title-3">Chọn 1 cuộc trò chuyện có sẵn</p>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="messages">
+            @* <ChatHeader OnNewChat="@ResetConversationAsync" /> *@
+            <h3 class="title">BQ Agent</h3>
+            <ChatMessageList Messages="@messages" InProgressMessage="@currentResponseMessage">
+                <NoMessagesContent>
+                    @* <ChatCitation File="Example_Emergency_Survival_Kit.pdf" />
+        <ChatCitation File="Example_GPS_Watch.pdf" /> *@
+                </NoMessagesContent>
+            </ChatMessageList>
 
-<div class="chat-container">
-    @* <ChatSuggestions OnSelected="@AddUserMessageAsync" @ref="@chatSuggestions" /> *@
-    <ChatInput OnSend="@AddUserMessageAsync" @ref="@chatInput" />
-    <SurveyPrompt /> @* Remove this line to eliminate the template survey message *@
+            <div class="chat-container">
+                <ChatSuggestions OnSelected="@AddUserMessageAsync" @ref="@chatSuggestions" />
+                <ChatInput OnSend="@AddUserMessageAsync" @ref="@chatInput" />
+            </div>
+        </div>
+
+    }
+
 </div>
+
 
 @code {
     private const string SystemPrompt = @"
@@ -40,6 +86,12 @@
     private ChatSuggestions? chatSuggestions;
     private IMcpClient? McpClient;
     private readonly List<ChatMessage> messages = new();
+
+
+    private Conversation? currentConversation;
+    private List<Conversation> conversations = new();
+    private string conversationName = string.Empty;
+
     protected override async Task OnInitializedAsync()
     {
         McpClient = await McpClientFactory.CreateAsync(
@@ -51,18 +103,86 @@
         var tools = await McpClient.ListToolsAsync();
 
         chatOptions.Tools = [.. tools];
-
+        conversations = await GetConversationsAsync();
         messages.Add(new(ChatRole.System, SystemPrompt));
-        SeedHistory();
         await base.OnInitializedAsync();
     }
 
-    private void SeedHistory()
+
+    private async Task<List<Conversation>> GetConversationsAsync()
     {
-        messages.Add(new ChatMessage(ChatRole.User, "Tôi là một người nóng tính"));
-        messages.Add(new ChatMessage(ChatRole.User, "Tôi thích ăn cay"));
+        var userId = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "userId");
+        if (string.IsNullOrEmpty(userId))
+            return new();
+        Guid parseToGuid = Guid.Parse(userId);
+        var conversations = await conversationService.GetConversationsByUserId(parseToGuid);
+        return conversations;
     }
 
+    private async Task GetMessagesByConversationId(Guid conversationId)
+    {
+        var res = await messagesService.GetMessagesByConversationId(conversationId);
+        foreach (var message in res)
+        {
+            if (message.Role == ChatRole.User.Value)
+                messages.Add(new ChatMessage(ChatRole.User, message.Content));
+            else if (message.Role == ChatRole.Assistant.Value)
+                messages.Add(new ChatMessage(ChatRole.Assistant, message.Content));
+        }
+    }
+
+    private async Task SelectedConversation(Conversation item)
+    {
+        var result = await GetConversationById(item);
+        if (result == null) return;
+        currentConversation = result;
+        await GetMessagesByConversationId(currentConversation.Id);
+    }
+
+
+
+    private async Task CreateConversation()
+    {
+        if (string.IsNullOrEmpty(conversationName)) return;
+        var userId = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "userId");
+        if (string.IsNullOrEmpty(userId)) return;
+        Guid parseToGuid = Guid.Parse(userId);
+        var conversation = new CreateConversationRequest()
+        {
+            Name = conversationName,
+            CreatedById = parseToGuid,
+            IsGroup = false,
+        };
+        var result = await conversationService.CreateConversationAsync(conversation);
+        if (result == null) return;
+        currentConversation = result;
+    }
+
+    private async Task CreateMessage(ChatMessage message)
+    {
+        if (currentConversation == null) return;
+        var userId = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "userId");
+        if (string.IsNullOrEmpty(userId)) return;
+        Guid parseToGuid = Guid.Parse(userId);
+        var body = new MessageRequest()
+        { 
+            Content = message.Text,
+            ConversationId = currentConversation.Id,
+            Role = message.Role,
+            SenderId = parseToGuid,
+             
+        };
+        await messagesService.CreateMessageAsync(body);
+
+    }
+
+
+    private async Task<Conversation?> GetConversationById(Conversation item)
+    {
+        if (item == null) return null;
+        var conversation = await conversationService.GetConversationById(item.Id);
+        return conversation;
+    }
 
     private async Task AddUserMessageAsync(ChatMessage userMessage)
     {
@@ -83,7 +203,8 @@
             responseText.Text += update.Text;
             ChatMessageItem.NotifyChanged(currentResponseMessage);
         }
-
+        await CreateMessage(userMessage);
+        await CreateMessage(currentResponseMessage);
         // Store the final response in the conversation, and begin getting suggestions
         messages.Add(currentResponseMessage!);
         currentResponseMessage = null;

@@ -8,7 +8,7 @@ namespace Agent.Api.Services;
 
 public class ConversationService(AgentDbContext dbContext) : IConversationService
 {
-    private readonly AgentDbContext _dbContext= dbContext;
+    private readonly AgentDbContext _dbContext = dbContext;
     public async Task<Conversation?> CreateConversationAsync(CreateConversationRequest command)
     {
         var conversation = new Conversation()
@@ -39,17 +39,13 @@ public class ConversationService(AgentDbContext dbContext) : IConversationServic
         return conversation;
     }
 
-    public async Task<ICollection<Conversation>> GetConversationsByUserId(Guid userId, int pageIndex = 1, int pageSize = 100)
+    public async Task<List<Conversation>> GetConversationsByUserId(Guid userId, int pageIndex = 1, int pageSize = 100)
     {
-        IQueryable<Conversation> conversations = _dbContext.Conversations;
 
-        conversations = conversations.Where(p => p.CreatedById == userId);
-
-        return await conversations
+        var res = await _dbContext.Conversations.Where(p => p.CreatedById == userId)
               .OrderBy(c => c.CreatedAt)
-              .Skip(pageIndex * pageSize)
-              .Take(pageSize)
               .ToListAsync();
+        return res;
 
     }
 

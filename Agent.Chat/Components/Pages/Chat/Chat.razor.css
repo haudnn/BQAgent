@@ -1,11 +1,74 @@
+.wrapper {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    background: #fff;
+}
+
+.history {
+    overflow-y: auto;
+    padding: 0 12px;
+    position: relative;
+    display: flex;
+    height: 100%;
+    width: 200px;
+    min-width: 200px;
+    overflow-x: hidden;
+    min-height: 100vh;
+}
+.title {
+    font-weight: 500;
+    font-size: 20px;
+    margin: 10px;
+}
+.title-3 {
+    font-weight: 500;
+    font-size: 14px;
+    margin: 10px;
+}
+.conversations {
+    margin: 10px;
+}
+.conversations-item 
+{
+    margin: 10px 0;
+}
+.conversations-item-name {
+    font-size: 14px;
+    font-weight: 400;
+    cursor: pointer;
+}
+
+.messages {
+    overflow: auto;
+    position: relative;
+    height: 100%;
+    width: 100%;
+    flex: 1;
+    background: #fff;
+}
+
+
+
 .chat-container {
-    position: sticky; 
-    bottom: 0; 
+    position: sticky;
+    bottom: 0;
     padding-left: 1.5rem;
-    padding-right: 1.5rem; 
-    padding-top: 0.75rem; 
-    padding-bottom: 1.5rem; 
-    border-top-width: 1px; 
-    background-color: #F3F4F6; 
+    padding-right: 1.5rem;
+    padding-top: 0.75rem;
+    padding-bottom: 1.5rem;
+    border-top-width: 1px;
+
     border-color: #E5E7EB;
+}
+
+.no-conversation 
+{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    min-height: 80vh;
 }

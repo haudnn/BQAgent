@@ -1,4 +1,4 @@
-using Microsoft.Extensions.AI;
+﻿using Microsoft.Extensions.AI;
 using Microsoft.Extensions.VectorData;
 using Agent.Chat.Components;
 using Agent.Chat.Services;

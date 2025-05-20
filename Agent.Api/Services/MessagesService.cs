@@ -3,7 +3,6 @@ using Agent.Api.Infrastructure.Entities;
 using Agent.Api.Interfaces;
 using Agent.Api.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.AI;
 
 
 namespace Agent.Api.Services;
@@ -34,15 +33,13 @@ public class MessagesService(AgentDbContext dbContext) : IMessagesService
         }
     }
 
-    public async Task<ICollection<Message>> GetMessagesByConversationId(Guid conversationId, int pageIndex = 1, int pageSize = 100)
+    public async Task<List<Message>> GetMessagesByConversationId(Guid conversationId, int pageIndex = 1, int pageSize = 100)
     {
-        IQueryable<Message> messages = _dbContext.Messages;
-        messages = messages.Where(p => p.ConversationId == conversationId);
-        return await messages
+        var res =  await _dbContext.Messages
+              .Where(p => p.ConversationId == conversationId)
               .Include(u => u.Sender)
               .OrderBy(c => c.CreatedAt)
-              .Skip(pageIndex * pageSize)
-              .Take(pageSize)
               .ToListAsync();
+        return res;
     }
 }

@@ -7,6 +7,6 @@ public interface IConversationService
 {
     Task<Conversation?> CreateConversationAsync(CreateConversationRequest command);
     Task<Conversation?> GetConversationById(Guid id);
-    Task<ICollection<Conversation>> GetConversationsByUserId(Guid userId, int pageIndex = 1, int pageSize = 100);
+    Task<List<Conversation>> GetConversationsByUserId(Guid userId, int pageIndex = 1, int pageSize = 100);
     Task<Conversation?> UpdateConversationById(Guid id, UpdateConversationRequest command);
 }

@@ -1,9 +1,7 @@
 ﻿@page "/register"
-@using System.Net.Http.Json
 @using Agent.Api.Models
 @using Agent.Api.Infrastructure.Entities
 @using Agent.Api.Interfaces;
-@inject HttpClient Http
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
 @inject IIdentityService identityService
@@ -11,8 +9,8 @@
 
 <div class="container">
     <div class="">
-        <div class="">
-            <h3 class="">Register</h3>
+        <div>
+            <h3>Register</h3>
         </div>
         <div class="">
             <EditForm Model="@registerRequest" OnValidSubmit="HandleValidSubmit">
@@ -73,7 +71,7 @@
 </div>
 
 @code {
-    private RegisterRequest registerRequest = new() { EmployeeCode = "", Password = "", Email = "", DisplayName ="" };
+    private RegisterRequest registerRequest = new() { EmployeeCode = "", Password = "", Email = "", DisplayName = "" };
     private string errorMessage = "";
     private bool isLoading = false;
 
@@ -88,7 +86,7 @@
                 return;
             else if (string.IsNullOrEmpty(registerRequest.Password))
                 return;
-           else  if (string.IsNullOrEmpty(registerRequest.Email))
+            else if (string.IsNullOrEmpty(registerRequest.Email))
                 return;
             else if (string.IsNullOrEmpty(registerRequest.DisplayName))
                 return;

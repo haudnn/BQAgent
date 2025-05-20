@@ -1,4 +1,4 @@
-namespace Agent.Api.Infrastructure.Entities;
+﻿namespace Agent.Api.Infrastructure.Entities;
 public class Message
 {
   public Guid Id { get; set; } = Guid.CreateVersion7();

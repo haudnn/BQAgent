@@ -1,7 +1,7 @@
 @inject IJSRuntime JS
 
 <div class="message-list-container">
-    <chat-messages class="page-width message-list" in-progress="@(InProgressMessage is not null)">
+    <chat-messages class="message-list" in-progress="@(InProgressMessage is not null)">
         @foreach (var message in Messages)
         {
             <ChatMessageItem @key="@message" Message="@message" />

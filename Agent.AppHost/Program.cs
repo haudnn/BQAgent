@@ -1,4 +1,4 @@
-var builder = DistributedApplication.CreateBuilder(args);
+﻿var builder = DistributedApplication.CreateBuilder(args);
 
 
 var openai = builder.AddConnectionString("openai");
@@ -42,17 +42,17 @@ var mcpserver = builder.AddProject<Projects.Agent_MCPServer>("mcp-server")
 	.WithReference(apiKey);
 
 
-var webApp = builder.AddProject<Projects.Agent_Chat>("chat-app");
-webApp.WithReference(openai);
-webApp
-		.WithReference(vectorDB)
-		.WaitFor(vectorDB);
-webApp
-		.WithReference(ingestionCache)
-		.WaitFor(ingestionCache);
-webApp
-		.WithReference(mcpserver)
-		.WaitFor(mcpserver);
+var webApp = builder.AddProject<Projects.Agent_Chat>("chat-app")
+    .WithReference(openai)
+    .WithReference(vectorDB)
+    .WaitFor(vectorDB)
+    .WithReference(ingestionCache)
+    .WaitFor(ingestionCache)
+    .WithReference(mcpserver)
+    .WaitFor(mcpserver)
+    .WithReference(bqDb)
+    .WaitFor(postgres)
+    .WaitFor(migrationService);
 
 
 
